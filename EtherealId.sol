@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 contract EtherealId{
      string public constant CONTRACT_NAME = "EtherealId";
-    string public constant CONTRACT_VERSION = "A";
+    string public constant CONTRACT_VERSION = "B";
     mapping (address => bool) private IsAuthority;
 	address private Creator;
 	address private Owner;
@@ -91,6 +91,21 @@ contract EtherealId{
     function VerifiedInfoHash(bytes32 hash) public view notBlocked returns(bool)     {
         return VerifiedInfoHashes[hash];
     }
+    
+	//this is the fallback
+    event RecievedEth(address indexed _from, uint256 _value);
+	function () payable public {
+		RecievedEth(msg.sender, msg.value);		
+	}
 	
-	
+	event TransferedEth(address indexed _to, uint256 _value);
+	function TransferEth(address _to, uint256 _value) public onlyOwner{
+	    require(this.balance >= _value);
+	    
+        if(_value >0)
+		{
+			_to.transfer(_value);
+			TransferedEth(_to, _value);
+		}   
+	}
 }
